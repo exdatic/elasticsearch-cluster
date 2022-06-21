@@ -21,7 +21,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.elasticsearch.entrypoints=http"
-      - "traefik.http.routers.elasticsearch.rule=Host(`localhost`) && PathPrefix(`/es`) || Host(`elasticsearch`)"
+      - "traefik.http.routers.elasticsearch.rule=Host(`localhost`) && PathPrefix(`/es`)"
       - "traefik.http.routers.elasticsearch.middlewares=es-stripprefix"
       - "traefik.http.middlewares.es-stripprefix.stripprefix.prefixes=/es"
       - "traefik.http.services.elasticsearch.loadbalancer.server.port=9200"
@@ -46,7 +46,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.elasticsearch.entrypoints=http"
-      - "traefik.http.routers.elasticsearch.rule=Host(`localhost`) && PathPrefix(`/es`) || Host(`elasticsearch`)"
+      - "traefik.http.routers.elasticsearch.rule=Host(`localhost`) && PathPrefix(`/es`)"
       - "traefik.http.routers.elasticsearch.middlewares=es-stripprefix"
       - "traefik.http.middlewares.es-stripprefix.stripprefix.prefixes=/es"
       - "traefik.http.services.elasticsearch.loadbalancer.server.port=9200"
@@ -71,7 +71,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.elasticsearch.entrypoints=http"
-      - "traefik.http.routers.elasticsearch.rule=Host(`localhost`) && PathPrefix(`/es`) || Host(`elasticsearch`)"
+      - "traefik.http.routers.elasticsearch.rule=Host(`localhost`) && PathPrefix(`/es`)"
       - "traefik.http.routers.elasticsearch.middlewares=es-stripprefix"
       - "traefik.http.middlewares.es-stripprefix.stripprefix.prefixes=/es"
       - "traefik.http.services.elasticsearch.loadbalancer.server.port=9200"
