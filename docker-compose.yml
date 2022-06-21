@@ -1,0 +1,97 @@
+version: "3.8"
+
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    volumes:
+      - esdata01:/usr/share/elasticsearch/data
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m -Dlog4j2.formatMsgNoLookups=true"
+      - node.name=es01
+      - cluster.name=${CLUSTER_NAME}
+      - cluster.initial_master_nodes=es01,es02,es03
+      - discovery.seed_hosts=es02,es03
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+    # mem_limit: ${MEM_LIMIT} TODO: Set resource limits using deploy.resources
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.elasticsearch.entrypoints=http"
+      - "traefik.http.routers.elasticsearch.rule=Host(`localhost`) && PathPrefix(`/es`) || Host(`elasticsearch`)"
+      - "traefik.http.routers.elasticsearch.middlewares=es-stripprefix"
+      - "traefik.http.middlewares.es-stripprefix.stripprefix.prefixes=/es"
+      - "traefik.http.services.elasticsearch.loadbalancer.server.port=9200"
+  es02:
+    depends_on:
+       - es01
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    volumes:
+      - esdata02:/usr/share/elasticsearch/data
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m -Dlog4j2.formatMsgNoLookups=true"
+      - node.name=es02
+      - cluster.name=${CLUSTER_NAME}
+      - cluster.initial_master_nodes=es01,es02,es03
+      - discovery.seed_hosts=es01,es03
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.elasticsearch.entrypoints=http"
+      - "traefik.http.routers.elasticsearch.rule=Host(`localhost`) && PathPrefix(`/es`) || Host(`elasticsearch`)"
+      - "traefik.http.routers.elasticsearch.middlewares=es-stripprefix"
+      - "traefik.http.middlewares.es-stripprefix.stripprefix.prefixes=/es"
+      - "traefik.http.services.elasticsearch.loadbalancer.server.port=9200"
+  es03:
+    depends_on:
+       - es02
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    volumes:
+      - esdata03:/usr/share/elasticsearch/data
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m -Dlog4j2.formatMsgNoLookups=true"
+      - node.name=es03
+      - cluster.name=${CLUSTER_NAME}
+      - cluster.initial_master_nodes=es01,es02,es03
+      - discovery.seed_hosts=es01,es02
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.elasticsearch.entrypoints=http"
+      - "traefik.http.routers.elasticsearch.rule=Host(`localhost`) && PathPrefix(`/es`) || Host(`elasticsearch`)"
+      - "traefik.http.routers.elasticsearch.middlewares=es-stripprefix"
+      - "traefik.http.middlewares.es-stripprefix.stripprefix.prefixes=/es"
+      - "traefik.http.services.elasticsearch.loadbalancer.server.port=9200"
+  traefik:
+    image: "traefik:v2.7"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.http.address=:80"
+    ports:
+      - "81:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+volumes:
+  esdata01:
+    driver: local
+  esdata02:
+    driver: local
+  esdata03:
+    driver: local
