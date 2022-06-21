@@ -21,10 +21,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.elasticsearch.entrypoints=http"
-      - "traefik.http.routers.elasticsearch.rule=Host(`localhost`) && PathPrefix(`/es`)"
+      - "traefik.http.routers.elasticsearch.rule=Host(${DOMAIN}) && PathPrefix(`/es`)"
       - "traefik.http.routers.elasticsearch.middlewares=es-stripprefix"
       - "traefik.http.middlewares.es-stripprefix.stripprefix.prefixes=/es"
       - "traefik.http.services.elasticsearch.loadbalancer.server.port=9200"
+      - "traefik.http.middlewares.es-auth.basicauth.users=${USERNAME}:${HASHED_PASSWORD}"
   es02:
     depends_on:
        - es01
@@ -46,10 +47,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.elasticsearch.entrypoints=http"
-      - "traefik.http.routers.elasticsearch.rule=Host(`localhost`) && PathPrefix(`/es`)"
+      - "traefik.http.routers.elasticsearch.rule=Host(${DOMAIN}) && PathPrefix(`/es`)"
       - "traefik.http.routers.elasticsearch.middlewares=es-stripprefix"
       - "traefik.http.middlewares.es-stripprefix.stripprefix.prefixes=/es"
       - "traefik.http.services.elasticsearch.loadbalancer.server.port=9200"
+      - "traefik.http.middlewares.es-auth.basicauth.users=${USERNAME}:${HASHED_PASSWORD}"
   es03:
     depends_on:
        - es02
@@ -71,10 +73,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.elasticsearch.entrypoints=http"
-      - "traefik.http.routers.elasticsearch.rule=Host(`localhost`) && PathPrefix(`/es`)"
+      - "traefik.http.routers.elasticsearch.rule=Host(${DOMAIN}) && PathPrefix(`/es`)"
       - "traefik.http.routers.elasticsearch.middlewares=es-stripprefix"
       - "traefik.http.middlewares.es-stripprefix.stripprefix.prefixes=/es"
       - "traefik.http.services.elasticsearch.loadbalancer.server.port=9200"
+      - "traefik.http.middlewares.es-auth.basicauth.users=${USERNAME}:${HASHED_PASSWORD}"
   traefik:
     image: "traefik:v2.7"
     command:
