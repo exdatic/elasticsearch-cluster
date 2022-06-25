@@ -59,9 +59,8 @@ services:
         - "traefik.http.routers.traefik.entrypoints=https"
         - "traefik.http.routers.traefik.tls.certresolver=le"
         - "traefik.http.routers.traefik.rule=Host(`${DOMAIN}`)"
-        - "traefik.http.middlewares.traefik-stripprefix.stripprefix.prefixes=/traefik"
         - "traefik.http.middlewares.traefik-auth.basicauth.users=${ADMIN_AUTH?Variable not set}"
-        - "traefik.http.routers.traefik.middlewares=traefik-stripprefix,traefik-auth"
+        - "traefik.http.routers.traefik.middlewares=traefik-auth"
         - "traefik.http.routers.traefik.service=api@internal"
         - "traefik.http.services.api.loadbalancer.server.port=8080"
 volumes:
