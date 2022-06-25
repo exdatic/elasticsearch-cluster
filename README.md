@@ -2,7 +2,7 @@
 
 This repository contains the configuration file to set up an Elasticsearch cluster on Docker Swarm. It uses Traefik reverse proxy to expose the Elasticsearch REST API on `/es` and the Traefik Dasboard on `/.
 
-👉 We have done our best to avoid cargo culting 📦📦📦!
+👉 We have done our best to avoid [cargo culting](https://en.wikipedia.org/wiki/Cargo_cult_programming) 📦📦📦!
 
 Credits:
 
