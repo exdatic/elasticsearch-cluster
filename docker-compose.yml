@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  es:
+  elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.2.3
     hostname: es.{{.Task.Slot}}
     environment:
@@ -9,46 +9,61 @@ services:
       - node.name=es.{{.Task.Slot}}
       - cluster.name=es-cluster
       - cluster.initial_master_nodes=es.1,es.2,es.3
-      - discovery.seed_hosts=tasks.es
+      - discovery.seed_hosts=tasks.elasticsearch
       - bootstrap.memory_lock=true
       - xpack.security.enabled=false
     ulimits:
       memlock:
         soft: -1
         hard: -1
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.elasticsearch.entrypoints=http"
-      - "traefik.http.routers.elasticsearch.rule=Host(`${DOMAIN}`) && PathPrefix(`/es`)"
-      - "traefik.http.routers.elasticsearch.middlewares=es-stripprefix"
-      - "traefik.http.middlewares.es-stripprefix.stripprefix.prefixes=/es"
-      - "traefik.http.services.elasticsearch.loadbalancer.server.port=9200"
-      - "traefik.http.middlewares.es-auth.basicauth.users=${USERNAME}:${HASHED_PASSWORD}"
     deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.elasticsearch.entrypoints=https"
+        - "traefik.http.routers.elasticsearch.tls.certresolver=le"
+        - "traefik.http.routers.elasticsearch.rule=Host(`${DOMAIN}`) && PathPrefix(`/es`)"
+        - "traefik.http.middlewares.es-stripprefix.stripprefix.prefixes=/es"
+        - "traefik.http.services.elasticsearch.loadbalancer.server.port=9200"
+        - "traefik.http.middlewares.es-auth.basicauth.users=${USERNAME?Variable not set}:${HASHED_PASSWORD?Variable not set}"
+        - "traefik.http.routers.elasticsearch.middlewares=es-stripprefix,es-auth"
       replicas: 3
       resources:
         limits:
-          cpus: '4'
+          cpus: "4"
           memory: 4G
     volumes:
       - esdata:/usr/share/elasticsearch/data
   traefik:
     image: "traefik:v2.7"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.swarmmode=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.https.address=:443"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
+      - "--certificatesresolvers.le.acme.email=${EMAIL}"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "443:443"
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
     deploy:
       placement:
         constraints:
           - "node.role==manager"
-    command:
-      #- "--log.level=DEBUG"
-      #- "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.http.address=:80"
-    ports:
-      - "80:80"
-      #- "8080:8080"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.traefik.entrypoints=https"
+        - "traefik.http.routers.traefik.tls.certresolver=le"
+        - "traefik.http.routers.traefik.rule=Host(`${DOMAIN}`)"
+        - "traefik.http.middlewares.traefik-stripprefix.stripprefix.prefixes=/traefik"
+        - "traefik.http.middlewares.traefik-auth.basicauth.users=${USERNAME?Variable not set}:${HASHED_PASSWORD?Variable not set}"
+        - "traefik.http.routers.traefik.middlewares=traefik-stripprefix,traefik-auth"
+        - "traefik.http.routers.traefik.service=api@internal"
+        - "traefik.http.services.api.loadbalancer.server.port=8080"
 volumes:
   esdata:
-    name: '{{.Service.Name}}.{{.Task.Slot}}'
+    name: "{{.Service.Name}}.{{.Task.Slot}}"
