@@ -24,7 +24,7 @@ services:
         - "traefik.http.routers.elasticsearch.rule=Host(`${DOMAIN}`) && PathPrefix(`/es`)"
         - "traefik.http.middlewares.es-stripprefix.stripprefix.prefixes=/es"
         - "traefik.http.services.elasticsearch.loadbalancer.server.port=9200"
-        - "traefik.http.middlewares.es-auth.basicauth.users=${USERNAME?Variable not set}:${HASHED_PASSWORD?Variable not set}"
+        - "traefik.http.middlewares.es-auth.basicauth.users=${ADMIN_AUTH?Variable not set}"
         - "traefik.http.routers.elasticsearch.middlewares=es-stripprefix,es-auth"
       replicas: 3
       resources:
@@ -60,7 +60,7 @@ services:
         - "traefik.http.routers.traefik.tls.certresolver=le"
         - "traefik.http.routers.traefik.rule=Host(`${DOMAIN}`)"
         - "traefik.http.middlewares.traefik-stripprefix.stripprefix.prefixes=/traefik"
-        - "traefik.http.middlewares.traefik-auth.basicauth.users=${USERNAME?Variable not set}:${HASHED_PASSWORD?Variable not set}"
+        - "traefik.http.middlewares.traefik-auth.basicauth.users=${ADMIN_AUTH?Variable not set}"
         - "traefik.http.routers.traefik.middlewares=traefik-stripprefix,traefik-auth"
         - "traefik.http.routers.traefik.service=api@internal"
         - "traefik.http.services.api.loadbalancer.server.port=8080"
