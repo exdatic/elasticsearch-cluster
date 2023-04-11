@@ -13,6 +13,14 @@ Credits:
 
 ## Setup docker swarm
 
+### Increase max_map_count Kernel Parameter
+
+See <https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html>.
+
+```bash
+sysctl -w vm.max_map_count=262144
+```
+
 ### Init docker swarm
 
 ```bash
