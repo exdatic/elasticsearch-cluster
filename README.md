@@ -13,7 +13,7 @@ Credits:
 
 ## Setup docker swarm
 
-### Increase max_map_count Kernel Parameter
+### Increase max_map_count Kernel Parameter on every node
 
 See <https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html>.
 
