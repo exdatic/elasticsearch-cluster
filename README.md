@@ -74,6 +74,6 @@ docker stack deploy -c docker-compose.yml es
 
 ### Elasticsearch master not discovered or elected yet
 
-The most common reason for this is that you previously ran Elasticsearch as a single-node instance or with `docker-compose up`. Another reason is that you have changed `node.name` or the service name. The solution to this is simple:
+The most common reason for this is that a previous run of Elasticsearch had a different configuration (e.g. configured as a single node, running under a different `node.name` or service name) or failed (e.g. missing system settings). The solution is simple:
 
-👉 Remove all data volumes used by Elasticsearch and redeploy your cluster!
+👉 Remove all volumes from all nodes used by Elasticsearch and redeploy your cluster!
